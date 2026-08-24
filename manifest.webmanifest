@@ -1,0 +1,16 @@
+{
+  "name": "Lucky Luke's Eleven XI",
+  "short_name": "LL XI",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#07101d",
+  "theme_color": "#091321",
+  "icons": [
+    {
+      "src": "wappen.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any maskable"
+    }
+  ]
+}
