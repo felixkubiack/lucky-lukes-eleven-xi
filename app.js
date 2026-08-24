@@ -620,5 +620,417 @@ function renderPolls(){
                 `).join('')}
               </div>`
             :''}
+            ?`<div class="actions" style="justify-content:flex-start">
+                ${POLL.map(o=>`
+                  <button class="btn" onclick="vote('${p.id}','${o}')">${o}</button>
+                `).join('')}
+              </div>`
+            :''}
 
+          ${canPrivate
+            ?`<h4 style="margin-top:14px">Private Einzelstimmen</h4>
+              ${vals.map(v=>`
+                <div class="row">
+                  <span>${esc(v.name)}</span>
+                  <b>${esc(v.choice)}</b>
+                </div>
+              `).join('')
+              ||'<p class="muted">Noch keine Stimmen.</p>'}`
+            :''}
+        </div>`;
+    }).join('')
+    ||
+    '<div class="card muted">Nach einer abgelaufenen Einheit erscheint hier automatisch eine Umfrage.</div>';
+}
+
+function renderLineup(){
+  normalizeLineup(state);
+
+  const starts=state.lineup.starters
+    .map(id=>state.members.find(m=>m.id===id))
+    .filter(Boolean);
+
+  const bench=state.lineup.bench
+    .map(id=>state.members.find(m=>m.id===id))
+    .filter(Boolean);
+
+  $('#lineup').innerHTML=
+    `<div class="card">
+      <h2>Aufstellung</h2>
+
+      <div class="pitch" ondragover="event.preventDefault()" ondrop="dropPitch(event)">
+        ${SLOTS.map((s,i)=>`
+          <div
+            class="slot"
+            data-slot="${i}"
+            style="left:${s[1]}%;top:${s[2]}%"
+            ondragover="event.preventDefault()"
+            ondrop="dropSlot(event,${i})"
+          >
+            ${s[0]}
+          </div>
+        `).join('')}
+
+        ${starts.map(m=>{
+          const i=state.lineup.slots[m.id]??0;
+          const s=SLOTS[i]||SLOTS[0];
+
+          return`
+            <button
+              class="player"
+              draggable="${MODE==='admin'}"
+              ondragstart="dragPlayer(event,'${m.id}')"
+              style="left:${s[1]}%;top:${s[2]}%"
+              onclick="openPlayerMenu('${m.id}')"
+            >
+              ${esc(m.name)}
+              <small><br>${s[0]}</small>
+            </button>`;
+        }).join('')}
+      </div>
+
+      <h3 style="margin-top:14px">Bank</h3>
+
+      <div class="bench" ondragover="event.preventDefault()" ondrop="dropBench(event)">
+        ${bench.map(m=>`
+          <button
+            class="player"
+            draggable="${MODE==='admin'}"
+            ondragstart="dragPlayer(event,'${m.id}')"
+            onclick="openPlayerMenu('${m.id}')"
+          >
+            ${esc(m.name)}
+          </button>
+        `).join('')}
+      </div>
+
+      ${MODE==='admin'
+        ?'<p class="muted" style="margin-top:10px">Spieler antippen und Position wählen. „Auf die Bank“ verschiebt ihn zurück.</p>'
+        :''}
+    </div>`;
+}
+
+function dragPlayer(e,id){
+  e.dataTransfer.setData('text/plain',id);
+}
+
+function dropSlot(e,i){
+  e.preventDefault();
+  const id=e.dataTransfer.getData('text/plain');
+  if(id)movePlayer(id,String(i));
+}
+
+function dropBench(e){
+  e.preventDefault();
+  const id=e.dataTransfer.getData('text/plain');
+  if(id)movePlayer(id,'bench');
+}
+
+function dropPitch(e){
+  e.preventDefault();
+}
+
+function renderRights(){
+  if(MODE!=='admin')return;
+
+  const mgr=managerRank();
+
+  $('#rights').innerHTML=
+    `<div class="card">
+      <h2>Spieler & Rechte</h2>
+
+      ${state.members.map(m=>{
+        const block=mgr==='VM'&&m.rank==='VM';
+
+        return`
+          <div class="row">
+            <div>
+              <b>${esc(m.name)}</b>
+              <div class="muted">${esc(m.pos)} · ${esc(m.rank)}</div>
+            </div>
+
+            <div class="actions">
+              <button
+                class="btn"
+                ${block?'disabled':''}
+                onclick="promote('${m.id}')"
+              >
+                ${m.rank==='Mitglied'
+                  ?'Zum Ältesten'
+                  :m.rank==='Ältester'
+                  ?'Zum VM'
+                  :'Höchster Rang'}
+              </button>
+
+              <button
+                class="btn"
+                ${(m.rank==='Mitglied'||block)?'disabled':''}
+                onclick="demote('${m.id}')"
+              >
+                Degradieren
+              </button>
+
+              <button
+                class="btn red"
+                ${block?'disabled':''}
+                onclick="removeMember('${m.id}')"
+              >
+                Aus Verein werfen
+              </button>
+            </div>
+          </div>`;
+      }).join('')
+      ||
+      '<p class="muted">Noch keine Mitglieder.</p>'}
+    </div>`;
+}
+
+function renderApplications(){
+  if(MODE!=='admin')return;
+
+  const a=state.applications.filter(x=>x.status==='pending');
+
+  $('#applications').innerHTML=
+    `<div class="card">
+      <h2>Bewerbungen</h2>
+
+      ${a.map(x=>`
+        <div class="row">
+          <div>
+            <b>${esc(x.name)}</b>
+            <div class="muted">${esc(x.pos)} · ${x.age} Jahre</div>
+          </div>
+
+          <div class="actions">
+            <button class="btn green" onclick="decide('${x.id}','approved')">
+              Annehmen
+            </button>
+
+            <button class="btn red" onclick="decide('${x.id}','rejected')">
+              Ablehnen
+            </button>
+          </div>
+        </div>
+      `).join('')
+      ||
+      '<p class="muted">Keine offenen Bewerbungen.</p>'}
+    </div>`;
+}
+
+function renderHistory(){
+  if(MODE!=='admin')return;
+
+  $('#history').innerHTML=
+    `<div class="card">
+      <h2>Spielerverlauf</h2>
+
+      ${[...state.history].reverse().map(h=>`
+        <div class="row">
+          <span>${esc(h.name)}</span>
+          <span>${esc(h.type)} ${h.rank?'· '+esc(h.rank):''}</span>
+        </div>
+      `).join('')
+      ||
+      '<p class="muted">Noch keine Einträge.</p>'}
+    </div>`;
+}
+
+function renderCommunity(){
+  $('#community').innerHTML=
+    `<div class="card">
+      <h2>Community</h2>
+
+      <a
+        class="btn primary"
+        style="display:block;text-decoration:none;text-align:center;margin-bottom:9px"
+        href="${WA}"
+        target="_blank"
+      >
+        WhatsApp Community
+      </a>
+
+      <button class="btn" style="width:100%" disabled>
+        Discord – Link noch nicht hinterlegt
+      </button>
+    </div>`;
+}
+
+function renderProfile(){
+  if(MODE==='admin'){
+    $('#profile').innerHTML=
+      `<div class="card">
+        <h2>Profil</h2>
+
+        <label>
+          Gamer-Tag
+          <input id="aTag" value="${esc(adminTag)}">
+        </label>
+
+        <p class="muted">Rang: ${managerRank()}</p>
+
+        <button class="btn primary" onclick="saveAdmin()">
+          Speichern
+        </button>
+      </div>`;
+  }else{
+    const m=member();
+
+    $('#profile').innerHTML=
+      `<div class="card">
+        <h2>Profil</h2>
+
+        <p><b>${esc(m?.name||me.name)}</b></p>
+
+        <p class="muted">
+          ${esc(m?.pos||me.pos)}
+          · ${m?.age||me.age} Jahre
+          · ${esc(m?.rank||'Mitglied')}
+        </p>
+
+        <button
+          class="btn red"
+          style="width:100%"
+          onclick="leave()"
+        >
+          Verein verlassen
+        </button>
+      </div>`;
+  }
+}
+
+function saveAdmin(){
+  adminTag=$('#aTag').value.trim()||'Admin';
+  localStorage.setItem('llx_admin_tag',adminTag);
+  toast('Profil gespeichert');
+}
+
+function render(){
+  if(!state)return;
+
+  renderJoin();
+
+  if(MODE==='player'&&!me.joined){
+    bell();
+    return;
+  }
+
+  renderHome();
+  renderSessions();
+  renderPolls();
+  renderLineup();
+  renderRights();
+  renderApplications();
+  renderHistory();
+  renderCommunity();
+  renderProfile();
+  bell();
+}
+
+async function tick(){
+  try{
+    state=normalize(await read());
+
+    if(MODE==='player'){
+      const m=member();
+
+      if(m&&!me.joined){
+        me.joined=true;
+        me.name=m.name;
+        me.age=m.age;
+        me.pos=m.pos;
+        saveMe();
+        toast('Du wurdest aufgenommen.');
+      }
+
+      if(me.joined&&!m){
+        me.joined=false;
+        saveMe();
+      }
+    }
+
+    render();
+    popup();
+
+  }catch(e){
+    console.error(e);
+    toast('Verbindungsfehler – bitte neu laden',true);
+  }
+}
+
+async function enableNotifications(){
+  if('Notification' in window){
+    const p=await Notification.requestPermission();
+
+    if(p==='granted'){
+      localStorage.setItem('llx_notify_asked','1');
+      $('#permission')?.classList.remove('show');
+      toast('Benachrichtigungen aktiviert');
+    }
+  }
+}
+
+function dismissPermission(){
+  localStorage.setItem('llx_notify_asked','1');
+  $('#permission')?.classList.remove('show');
+}
+
+Object.assign(window,{
+  page,
+  noticePanel,
+  openNotice,
+  submitJoin,
+  decide,
+  attend,
+  addSession,
+  deleteSession,
+  vote,
+  promote,
+  demote,
+  removeMember,
+  leave,
+  openPlayerMenu,
+  closeLineupModal,
+  movePlayer,
+  dragPlayer,
+  dropSlot,
+  dropBench,
+  dropPitch,
+  saveAdmin,
+  enableNotifications,
+  dismissPermission
+});
+
+document.addEventListener('DOMContentLoaded',()=>{
+  nav();
+
+  if($('#brand')){
+    $('#brand').onclick=()=>page('home');
+  }
+
+  navigator.serviceWorker
+    ?.register('sw.js')
+    .catch(()=>{});
+
+  if(
+    !localStorage.getItem('llx_notify_asked') &&
+    'Notification' in window &&
+    Notification.permission==='default'
+  ){
+    setTimeout(
+      ()=>$('#permission')?.classList.add('show'),
+      1200
+    );
+  }
+
+  tick();
+  setInterval(tick,1800);
+});
+
+window.addEventListener('storage',e=>{
+  if(e.key===LOCAL_KEY){
+    tick();
+  }
+});
+
+})();
        
