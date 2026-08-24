@@ -1,4 +1,4 @@
-
+SUPABASE_URL=(window.LLX_SUPABASE_URL||''),SUPABASE_KEY=(window.LLX_SUPABASE_KEY||'')
 const MODE=(window.APP_MODE||((/admin\.html$/.test(location.pathname)||location.search.includes('mode=admin'))?'admin':'player')),API=(window.LLX_API_URL||''),WA='https://chat.whatsapp.com/D8peyB1ArekKODQgTfJtWV?s=cl&p=a&ilr=4',POLL=['Sehr gut','Gut','Okay','Nicht gut'],SLOTS=[['TW',50,88],['LV',18,70],['IV',39,70],['IV',61,70],['RV',82,70],['LM',18,47],['ZM',39,47],['ZM',61,47],['RM',82,47],['ST',38,20],['ST',62,20]],$=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],uid=()=>crypto.randomUUID?.()||Date.now()+'_'+Math.random().toString(36).slice(2);let state=null,selectedPlayer=null,me=JSON.parse(localStorage.getItem('llx_me_v2')||'null')||{id:uid(),name:'',age:'',pos:'',joined:false},adminTag=localStorage.getItem('llx_admin_tag')||'Admin';function esc(x){return String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function saveMe(){localStorage.setItem('llx_me_v2',JSON.stringify(me))}function blank(){return{version:0,members:[],applications:[],sessions:[],polls:[],notices:[],history:[],lineup:{starters:[],bench:[],slots:{},autoSig:''},adminAttendance:{},updatedAt:0}}const LOCAL_KEY='llx_shared_state_v3';
 function localRead(){
   try{return JSON.parse(localStorage.getItem(LOCAL_KEY)||'null')||blank()}catch(e){return blank()}
@@ -10,33 +10,68 @@ function localWrite(s){
   return s;
 }
 async function read(){
-  if(!API)return localRead();
   try{
-    let r=await fetch(API+'?t='+Date.now(),{cache:'no-store'});
-    if(!r.ok)throw Error('Lesen '+r.status);
-    let s=await r.json();
+    const r=await fetch(
+      SUPABASE_URL+'/rest/v1/club_state?id=eq.1&select=version,data,updated_at',
+      {
+        headers:{apikey:SUPABASE_KEY},
+        cache:'no-store'
+      }
+    );
+
+    if(!r.ok)throw Error('Supabase lesen '+r.status);
+
+    const rows=await r.json();
+    if(!rows.length)return blank();
+
+    const s={...blank(),...(rows[0].data||{})};
+    s.version=Number(rows[0].version||0);
+    s.updatedAt=rows[0].updated_at
+      ? Date.parse(rows[0].updated_at)
+      : Date.now();
+
     localStorage.setItem(LOCAL_KEY,JSON.stringify(s));
-    return s
+    return s;
   }catch(e){
-    console.warn('Online-Speicher nicht erreichbar – lokaler Modus aktiv.',e);
-    return localRead()
+    console.error('Supabase lesen fehlgeschlagen',e);
+    return localRead();
   }
 }
+
 async function put(base,s){
-  if(!API)return localWrite(s);
-  try{
-    let r=await fetch(API,{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({baseVersion:base,state:s})});
-    if(r.status===409)return null;
-    if(!r.ok)throw Error('Speichern '+r.status);
-    let saved=await r.json();
-    localStorage.setItem(LOCAL_KEY,JSON.stringify(saved));
-    return saved
-  }catch(e){
-    console.warn('Online-Speicher nicht erreichbar – lokal gespeichert.',e);
-    return localWrite(s)
-  }
-}
-async function mutate(fn){
+  const next={
+    ...s,
+    version:Number(base||0)+1,
+    updatedAt:Date.now()
+  };
+
+  const r=await fetch(
+    SUPABASE_URL+
+      '/rest/v1/club_state?id=eq.1&version=eq.'+
+      encodeURIComponent(base),
+    {
+      method:'PATCH',
+      headers:{
+        apikey:SUPABASE_KEY,
+        'Content-Type':'application/json',
+        Prefer:'return=representation'
+      },
+      body:JSON.stringify({
+        version:next.version,
+        data:next,
+        updated_at:new Date(next.updatedAt).toISOString()
+      })
+    }
+  );
+
+  if(!r.ok)throw Error('Supabase speichern '+r.status);
+
+  const rows=await r.json();
+  if(!rows.length)return null;
+
+  localStorage.setItem(LOCAL_KEY,JSON.stringify(next));
+  return next;
+        }
   for(let i=0;i<5;i++){
     let s=await read();normalize(s);fn(s);normalize(s);
     let saved=await put(s.version,s);
