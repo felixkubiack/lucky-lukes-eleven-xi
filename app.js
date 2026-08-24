@@ -91,10 +91,7 @@ function autoPolls(s){
     }
   }
 }
-  for(const x of s.sessions.filter(ended)){
-    if(!s.polls.some(p=>p.sessionId===x.id)) s.polls.push({id:uid(),sessionId:x.id,title:`Wie hat dir „${x.title}“ gefallen?`,votes:{},at:Date.now()});
-  }
-}
+  
 function normalize(s){
   s.members||=[];s.applications||=[];s.sessions||=[];s.polls||=[];s.notices||=[];s.history||=[];s.adminAttendance||={};
   s.lineup||={starters:[],bench:[],slots:{}};s.lineup.starters||=[];s.lineup.bench||=[];s.lineup.slots||={};
