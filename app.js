@@ -1,4 +1,20 @@
-(() => {
+window.onerror=function(message,source,line,column,error){
+  document.body.innerHTML=
+    '<div style="padding:20px;background:#111;color:#fff;font-family:monospace">' +
+    '<h2 style="color:#ff6b6b">JavaScript-Fehler</h2>' +
+    '<p>'+message+'</p>' +
+    '<p>Zeile: '+line+' / Spalte: '+column+'</p>' +
+    '<p>'+String(error||'')+'</p>' +
+    '</div>';
+};
+
+window.onunhandledrejection=function(event){
+  document.body.innerHTML=
+    '<div style="padding:20px;background:#111;color:#fff;font-family:monospace">' +
+    '<h2 style="color:#ff6b6b">Promise-Fehler</h2>' +
+    '<p>'+String(event.reason||'Unbekannter Fehler')+'</p>' +
+    '</div>';
+};(() => {
 'use strict';
 const MODE=window.APP_MODE||(/admin\.html$/.test(location.pathname)?'admin':'player');
 const SUPABASE_URL=window.LLX_SUPABASE_URL||'',SUPABASE_KEY=window.LLX_SUPABASE_KEY||'';
