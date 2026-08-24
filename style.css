@@ -124,3 +124,139 @@ button:active,
     transition-duration: .01ms !important;
   }
 }
+/* ===== Stadion-/Fußball-Animation ===== */
+
+body{
+  position:relative;
+  overflow-x:hidden;
+  background:
+    radial-gradient(circle at 50% 120%, rgba(0,255,140,.14), transparent 45%),
+    linear-gradient(135deg,#07111d,#0b1b2e 45%,#07111d);
+  background-size:200% 200%;
+  animation:stadiumShift 12s ease-in-out infinite;
+}
+
+/* Lichtkegel */
+body::before,
+body::after{
+  content:"";
+  position:fixed;
+  top:-15vh;
+  width:45vw;
+  height:130vh;
+  pointer-events:none;
+  z-index:0;
+  filter:blur(12px);
+  opacity:.28;
+}
+
+body::before{
+  left:-10vw;
+  background:linear-gradient(
+    105deg,
+    transparent 0%,
+    rgba(255,255,255,.03) 25%,
+    rgba(90,190,255,.22) 50%,
+    transparent 75%
+  );
+  transform:rotate(8deg);
+  animation:lightSweepLeft 7s ease-in-out infinite;
+}
+
+body::after{
+  right:-10vw;
+  background:linear-gradient(
+    75deg,
+    transparent 0%,
+    rgba(255,255,255,.03) 25%,
+    rgba(0,255,150,.18) 50%,
+    transparent 75%
+  );
+  transform:rotate(-8deg);
+  animation:lightSweepRight 9s ease-in-out infinite;
+}
+
+/* Inhalt bleibt über der Animation */
+header,
+main,
+footer,
+.wrap,
+.card,
+.modal,
+.notice-panel,
+.permission,
+.toast,
+.pink{
+  position:relative;
+  z-index:1;
+}
+
+/* Stadion-Hintergrund bewegt sich */
+@keyframes stadiumShift{
+  0%{
+    background-position:0% 50%;
+  }
+  50%{
+    background-position:100% 50%;
+  }
+  100%{
+    background-position:0% 50%;
+  }
+}
+
+/* Lichtstrahlen wandern */
+@keyframes lightSweepLeft{
+  0%,100%{
+    transform:translateX(-8vw) rotate(8deg);
+    opacity:.16;
+  }
+  50%{
+    transform:translateX(22vw) rotate(3deg);
+    opacity:.38;
+  }
+}
+
+@keyframes lightSweepRight{
+  0%,100%{
+    transform:translateX(8vw) rotate(-8deg);
+    opacity:.14;
+  }
+  50%{
+    transform:translateX(-22vw) rotate(-3deg);
+    opacity:.34;
+  }
+}
+
+/* Karten mit leichtem Stadion-Glow */
+.card{
+  transition:
+    transform .22s ease,
+    box-shadow .22s ease,
+    border-color .22s ease;
+}
+
+.card:hover,
+.card:focus-within{
+  box-shadow:
+    0 10px 35px rgba(0,0,0,.28),
+    0 0 24px rgba(0,180,255,.12);
+}
+
+/* Eingabefelder reagieren sichtbar */
+input,
+select,
+textarea{
+  transition:
+    transform .16s ease,
+    box-shadow .16s ease,
+    border-color .16s ease,
+    background .16s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+  transform:scale(1.02);
+  box-shadow:
+    0 0 0 2px rgba(0,210,255,.14),
+    0 0 22px rgba(0,210,255
