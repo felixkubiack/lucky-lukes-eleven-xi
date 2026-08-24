@@ -1034,16 +1034,11 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   tick();
   setInterval(()=>{
-  const el=document.activeElement;
-  const typing=
-    el &&
-    (
-      el.tagName==='INPUT' ||
-      el.tagName==='TEXTAREA' ||
-      el.tagName==='SELECT'
-    );
+  const aufEinheiten =
+    MODE==='admin' &&
+    document.body.dataset.page==='sessions';
 
-  if(!typing){
+  if(!aufEinheiten){
     tick();
   }
 },1800);
