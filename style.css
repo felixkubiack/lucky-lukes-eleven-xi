@@ -30,3 +30,97 @@ footer{max-width:1120px;margin:0 auto 20px;padding:0 15px;color:var(--muted);fon
   .actions{width:100%}
   .actions .btn{flex:1}
 }
+/* Sanfte Hintergrund-Animation */
+body{
+  background-size: 180% 180%;
+  animation: llxBackgroundMove 18s ease-in-out infinite;
+}
+
+@keyframes llxBackgroundMove{
+  0%{
+    background-position: 0% 50%;
+  }
+  50%{
+    background-position: 100% 50%;
+  }
+  100%{
+    background-position: 0% 50%;
+  }
+}
+
+/* Karten leicht lebendiger */
+.card{
+  transition:
+    transform .22s ease,
+    box-shadow .22s ease,
+    border-color .22s ease;
+}
+
+/* Eingabefelder */
+input,
+select,
+textarea{
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease,
+    border-color .18s ease,
+    background .18s ease;
+}
+
+/* Beim Antippen / Schreiben */
+input:focus,
+select:focus,
+textarea:focus{
+  transform: scale(1.015);
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,.08),
+    0 0 18px rgba(85,180,255,.22);
+  animation: llxInputPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes llxInputPulse{
+  0%,100%{
+    filter: brightness(1);
+  }
+  50%{
+    filter: brightness(1.08);
+  }
+}
+
+/* Buttons beim Tippen */
+button,
+.btn{
+  transition:
+    transform .12s ease,
+    box-shadow .18s ease;
+}
+
+button:active,
+.btn:active{
+  transform: scale(.96);
+}
+
+/* Spieler auf dem Feld leicht schwebend */
+.player{
+  animation: llxPlayerFloat 3.5s ease-in-out infinite;
+}
+
+@keyframes llxPlayerFloat{
+  0%,100%{
+    transform: translate(-50%,-50%) translateY(0);
+  }
+  50%{
+    transform: translate(-50%,-50%) translateY(-3px);
+  }
+}
+
+/* Weniger Bewegung, wenn das Gerät es wünscht */
+@media (prefers-reduced-motion: reduce){
+  *,
+  *::before,
+  *::after{
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
