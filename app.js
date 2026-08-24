@@ -620,12 +620,6 @@ function renderPolls(){
                 `).join('')}
               </div>`
             :''}
-            ?`<div class="actions" style="justify-content:flex-start">
-                ${POLL.map(o=>`
-                  <button class="btn" onclick="vote('${p.id}','${o}')">${o}</button>
-                `).join('')}
-              </div>`
-            :''}
 
           ${canPrivate
             ?`<h4 style="margin-top:14px">Private Einzelstimmen</h4>
