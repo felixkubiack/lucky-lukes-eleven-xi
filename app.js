@@ -38,6 +38,59 @@ function normalizeLineup(s){
 }
 function ended(x){return new Date(`${x.date}T${x.time}`).getTime()<Date.now()}
 function autoPolls(s){
+  const now = Date.now();
+  const twelveHours = 12 * 60 * 60 * 1000;
+
+  // Abgelaufene automatische Umfragen entfernen
+  s.polls = s.polls.filter(p => {
+    if (!p.expiresAt) return true;
+    return p.expiresAt > now;
+  });
+
+  // Nach Ende einer Einheit automatisch Umfrage erstellen
+  for (const x of s.sessions.filter(ended)) {
+    const alreadyExists = s.polls.some(
+      p => p.sessionId === x.id
+    );
+
+    const alreadyExpired = s.history.some(
+      h =>
+        h.type === 'pollExpired' &&
+        h.sessionId === x.id
+    );
+
+    if (!alreadyExists && !alreadyExpired) {
+      s.polls.push({
+        id: uid(),
+        sessionId: x.id,
+        title: `Wie hat dir „${x.title}“ gefallen?`,
+        votes: {},
+        at: now,
+        expiresAt: now + twelveHours
+      });
+    }
+  }
+
+  // Merken, welche Umfragen abgelaufen sind
+  for (const x of s.sessions.filter(ended)) {
+    const oldPoll = s.polls.find(
+      p => p.sessionId === x.id
+    );
+
+    if (
+      oldPoll &&
+      oldPoll.expiresAt &&
+      oldPoll.expiresAt <= now
+    ) {
+      s.history.push({
+        id: uid(),
+        type: 'pollExpired',
+        sessionId: x.id,
+        at: now
+      });
+    }
+  }
+}
   for(const x of s.sessions.filter(ended)){
     if(!s.polls.some(p=>p.sessionId===x.id)) s.polls.push({id:uid(),sessionId:x.id,title:`Wie hat dir „${x.title}“ gefallen?`,votes:{},at:Date.now()});
   }
