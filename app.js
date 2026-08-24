@@ -1033,7 +1033,20 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
 
   tick();
-  setInterval(tick,1800);
+  setInterval(()=>{
+  const el=document.activeElement;
+  const typing=
+    el &&
+    (
+      el.tagName==='INPUT' ||
+      el.tagName==='TEXTAREA' ||
+      el.tagName==='SELECT'
+    );
+
+  if(!typing){
+    tick();
+  }
+},1800);
 });
 
 window.addEventListener('storage',e=>{
