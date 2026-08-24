@@ -71,7 +71,9 @@ async function put(base,s){
 
   localStorage.setItem(LOCAL_KEY,JSON.stringify(next));
   return next;
-        }
+}
+
+async function mutate(fn){
   for(let i=0;i<5;i++){
     let s=await read();normalize(s);fn(s);normalize(s);
     let saved=await put(s.version,s);
