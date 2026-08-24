@@ -1,7 +1,5 @@
-// Gemeinsamer Online-Speicher.
-// Wenn Frontend und Backend zusammen veröffentlicht werden:
-window.LLX_API_URL = '/api/state';
+// Lucky Luke's Eleven XI – Supabase-Verbindung
 
-// Wenn das Frontend auf GitHub Pages liegt und das Backend separat läuft,
-// ersetze die Zeile oben z. B. durch:
-// window.LLX_API_URL = 'https://DEIN-BACKEND.vercel.app/api/state';
+window.LLX_SUPABASE_URL = 'https://ftvngzzgdvdntwinuaef.supabase.co';
+
+window.LLX_SUPABASE_KEY = 'sb_publishable_Ear7feWXd9gycNHr30UJZw_d4I_KoEs';
