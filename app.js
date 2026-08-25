@@ -1281,4 +1281,212 @@ if(document.readyState === 'loading'){
   addLineupDownloadButton();
 
 }
+  /* ==================================================
+   LLXI – AUFSTELLUNG FÜR SPIELER + KLARE POSITIONEN
+   ================================================== */
+
+/* Schöne Positionsnamen ohne Nummern */
+function llxiSlotName(i){
+  const names=[
+    'TW',
+    'LV',
+    'IV',
+    'IV',
+    'RV',
+    'LM',
+    'LZM',
+    'RZM',
+    'RM',
+    'ST',
+    'ST'
+  ];
+
+  return names[i] || '';
+}
+
+
+/* Positionsauswahl ohne Zahlen */
+openPlayerMenu=function(id){
+  if(MODE!=='admin')return;
+
+  const m=state?.members.find(x=>x.id===id);
+  if(!m)return;
+
+  $('#modalTitle').textContent=m.name;
+
+  $('#modalOptions').innerHTML=
+    `<button class="btn"
+      onclick="movePlayer('${id}','bench')">
+      Auf die Bank
+    </button>`+
+
+    SLOTS.map((s,i)=>`
+      <button class="btn"
+        onclick="movePlayer('${id}','${i}')">
+        ${llxiSlotName(i)}
+      </button>
+    `).join('');
+
+  $('#lineupModal').classList.add('open');
+};
+
+window.openPlayerMenu=openPlayerMenu;
+
+
+/* Aufstellung mit LZM / RZM anzeigen */
+renderLineup=function(){
+
+  normalizeLineup(state);
+
+  const starts=state.lineup.starters
+    .map(id=>state.members.find(m=>m.id===id))
+    .filter(Boolean);
+
+  const bench=state.lineup.bench
+    .map(id=>state.members.find(m=>m.id===id))
+    .filter(Boolean);
+
+  $('#lineup').innerHTML=
+    `<div class="card">
+
+      <h2>Aufstellung</h2>
+
+      <div
+        class="pitch"
+        ondragover="event.preventDefault()"
+        ondrop="dropPitch(event)"
+      >
+
+        ${SLOTS.map((s,i)=>`
+          <div
+            class="slot"
+            data-slot="${i}"
+            style="left:${s[1]}%;top:${s[2]}%"
+            ondragover="event.preventDefault()"
+            ondrop="dropSlot(event,${i})"
+          >
+            ${llxiSlotName(i)}
+          </div>
+        `).join('')}
+
+        ${starts.map(m=>{
+
+          const i=state.lineup.slots[m.id]??0;
+          const s=SLOTS[i]||SLOTS[0];
+
+          return`
+            <button
+              class="player"
+              draggable="${MODE==='admin'}"
+              ondragstart="dragPlayer(event,'${m.id}')"
+              style="left:${s[1]}%;top:${s[2]}%"
+              onclick="openPlayerMenu('${m.id}')"
+            >
+              ${esc(m.name)}
+            </button>
+          `;
+
+        }).join('')}
+
+      </div>
+
+      <h3 style="margin-top:14px">Bank</h3>
+
+      <div
+        class="bench"
+        ondragover="event.preventDefault()"
+        ondrop="dropBench(event)"
+      >
+
+        ${bench.map(m=>`
+          <button
+            class="player"
+            draggable="${MODE==='admin'}"
+            ondragstart="dragPlayer(event,'${m.id}')"
+            onclick="openPlayerMenu('${m.id}')"
+          >
+            ${esc(m.name)}
+          </button>
+        `).join('')}
+
+      </div>
+
+      ${MODE==='admin'
+        ?`
+          <p class="muted" style="margin-top:10px">
+            Spieler antippen und Position wählen.
+            „Auf die Bank“ verschiebt ihn zurück.
+          </p>
+        `
+        :''
+      }
+
+    </div>`;
+
+};
+
+
+/* Spieler sehen ihre aktuelle Aufstellung zusätzlich direkt auf Start */
+const llxiOldRenderHome=renderHome;
+
+renderHome=function(){
+
+  llxiOldRenderHome();
+
+  if(MODE!=='player')return;
+
+  normalizeLineup(state);
+
+  const starts=state.lineup.starters
+    .map(id=>state.members.find(m=>m.id===id))
+    .filter(Boolean);
+
+  const miniPitch=document.createElement('div');
+
+  miniPitch.className='card';
+  miniPitch.style.marginTop='14px';
+
+  miniPitch.innerHTML=`
+    <h2>Aktuelle Aufstellung</h2>
+
+    <div class="pitch">
+
+      ${SLOTS.map((s,i)=>`
+        <div
+          class="slot"
+          style="left:${s[1]}%;top:${s[2]}%"
+        >
+          ${llxiSlotName(i)}
+        </div>
+      `).join('')}
+
+      ${starts.map(m=>{
+
+        const i=state.lineup.slots[m.id]??0;
+        const s=SLOTS[i]||SLOTS[0];
+
+        return`
+          <div
+            class="player"
+            style="left:${s[1]}%;top:${s[2]}%"
+          >
+            ${esc(m.name)}
+          </div>
+        `;
+
+      }).join('')}
+
+    </div>
+
+    <button
+      class="btn"
+      style="width:100%;margin-top:12px"
+      onclick="page('lineup')"
+    >
+      Aufstellung öffnen
+    </button>
+  `;
+
+  $('#home').appendChild(miniPitch);
+};
 })();
