@@ -743,3 +743,61 @@ header{
   border-bottom:none;
   box-shadow:none;
 }
+/* === HEADER WIEDER KLAR + NAVIGATION IMMER SICHTBAR === */
+
+header{
+  background:rgba(16,38,62,.96);
+
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+
+  padding-bottom:10px;
+  margin-bottom:0;
+
+  border-bottom:1px solid rgba(150,205,245,.18);
+  box-shadow:0 8px 22px rgba(8,25,45,.12);
+}
+
+/* Schnellleiste immer vollständig sichtbar */
+.nav{
+  position:relative;
+  z-index:5;
+  opacity:1;
+  filter:none;
+}
+
+/* Begriffe in der Schnellleiste dauerhaft sichtbar */
+.nav button{
+  position:relative;
+  z-index:6;
+
+  color:#ffffff;
+  opacity:1 !important;
+  visibility:visible !important;
+
+  filter:none !important;
+  text-shadow:none;
+
+  overflow:visible;
+}
+
+/* Aktiver Bereich bleibt deutlich markiert */
+.nav button.active{
+  color:#17130a;
+  opacity:1 !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f0d26e,
+      #d5ad42
+    );
+}
+
+/* Auch beim Antippen Text nicht ausblenden */
+.nav button:hover,
+.nav button:focus,
+.nav button:active{
+  opacity:1 !important;
+  visibility:visible !important;
+}
