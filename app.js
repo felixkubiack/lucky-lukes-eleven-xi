@@ -1489,4 +1489,169 @@ renderHome=function(){
 
   $('#home').appendChild(miniPitch);
 };
+/* ==================================================
+   LLXI – EXPORTBILD MIT TITEL + WAPPEN
+   ================================================== */
+
+async function downloadLineupImage(){
+
+  const pitch = document.querySelector('#lineup .pitch');
+  const btn = document.querySelector('#downloadLineupBtn');
+
+  if(!pitch){
+    alert('Keine Aufstellung gefunden.');
+    return;
+  }
+
+  if(typeof html2canvas !== 'function'){
+    alert('Bildfunktion konnte nicht geladen werden.');
+    return;
+  }
+
+  try{
+
+    if(btn){
+      btn.disabled = true;
+      btn.textContent = '📸 Bild wird erstellt...';
+    }
+
+    /* Exportfläche nur für das gespeicherte Bild */
+    const exportBox = document.createElement('div');
+
+    exportBox.style.position = 'fixed';
+    exportBox.style.left = '-99999px';
+    exportBox.style.top = '0';
+
+    exportBox.style.width = pitch.offsetWidth + 'px';
+    exportBox.style.padding = '22px 18px 18px';
+
+    exportBox.style.background =
+      'linear-gradient(180deg,#0d2238 0%,#173a5b 18%,#eaf4fb 100%)';
+
+    exportBox.style.borderRadius = '28px';
+    exportBox.style.overflow = 'hidden';
+
+    exportBox.style.fontFamily =
+      'Arial, Helvetica, sans-serif';
+
+
+    /* Titel */
+    const title = document.createElement('div');
+
+    title.textContent = "Lucky Luke's XI";
+
+    title.style.textAlign = 'center';
+    title.style.color = '#ffffff';
+
+    title.style.fontSize = '28px';
+    title.style.fontWeight = '900';
+
+    title.style.letterSpacing = '1px';
+
+    title.style.marginBottom = '18px';
+
+    title.style.textShadow =
+      '0 3px 10px rgba(0,0,0,.35)';
+
+
+    /* Spielfeld kopieren */
+    const pitchClone = pitch.cloneNode(true);
+
+    pitchClone.style.width = '100%';
+    pitchClone.style.margin = '0';
+
+
+    /* Logo unten */
+    const logoWrap = document.createElement('div');
+
+    logoWrap.style.display = 'flex';
+    logoWrap.style.justifyContent = 'center';
+
+    logoWrap.style.marginTop = '18px';
+
+
+    const logo = document.createElement('img');
+
+    logo.src = 'wappen-neu.png';
+
+    logo.style.width = '82px';
+    logo.style.height = '82px';
+
+    logo.style.objectFit = 'contain';
+
+    logo.style.filter =
+      'drop-shadow(0 5px 8px rgba(0,0,0,.28))';
+
+
+    logoWrap.appendChild(logo);
+
+    exportBox.appendChild(title);
+    exportBox.appendChild(pitchClone);
+    exportBox.appendChild(logoWrap);
+
+    document.body.appendChild(exportBox);
+
+
+    /* warten bis Logo geladen ist */
+    if(!logo.complete){
+      await new Promise(resolve=>{
+        logo.onload = resolve;
+        logo.onerror = resolve;
+      });
+    }
+
+
+    const canvas = await html2canvas(exportBox,{
+      scale:2,
+      useCORS:true,
+      backgroundColor:null,
+      logging:false
+    });
+
+
+    const now = new Date();
+
+    const date =
+      now.getFullYear() + '-' +
+      String(now.getMonth()+1).padStart(2,'0') + '-' +
+      String(now.getDate()).padStart(2,'0');
+
+
+    const link = document.createElement('a');
+
+    link.download =
+      `Lucky-Lukes-XI-Aufstellung-${date}.png`;
+
+    link.href =
+      canvas.toDataURL('image/png',1.0);
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    link.remove();
+    exportBox.remove();
+
+
+  }catch(err){
+
+    console.error(
+      'Aufstellungsbild Fehler:',
+      err
+    );
+
+    alert(
+      'Die Aufstellung konnte leider nicht als Bild erstellt werden.'
+    );
+
+  }finally{
+
+    if(btn){
+      btn.disabled = false;
+
+      btn.innerHTML =
+        '📸 Aufstellung als Bild speichern';
+    }
+  }
+}  
 })();
