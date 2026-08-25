@@ -935,3 +935,71 @@ header{
     border-radius:20px !important;
   }
 }
+/* === HEADER VOLLE BREITE + NEUES WAPPEN === */
+
+/* Keine weißen Seitenränder am oberen Bereich */
+header{
+  width:100% !important;
+  max-width:none !important;
+
+  margin:0 !important;
+
+  border-radius:0 0 28px 28px !important;
+
+  border-left:none !important;
+  border-right:none !important;
+
+  overflow:hidden;
+}
+
+/* Inhalt nutzt die verfügbare Breite sauber */
+header .head{
+  width:100%;
+  max-width:100%;
+}
+
+/* Neues Vereinswappen oben links */
+.brand-logo{
+  content:url("wappen-neu.png");
+
+  width:64px !important;
+  height:64px !important;
+
+  object-fit:contain;
+
+  border-radius:0 !important;
+  background:transparent !important;
+  border:none !important;
+
+  box-shadow:none !important;
+
+  flex:0 0 64px;
+}
+
+/* Logo + Vereinsname sauber ausrichten */
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+/* Auf Handy etwas kompakter */
+@media(max-width:600px){
+
+  header{
+    width:100% !important;
+    margin:0 !important;
+
+    border-radius:0 0 24px 24px !important;
+  }
+
+  .brand-logo{
+    width:56px !important;
+    height:56px !important;
+    flex-basis:56px;
+  }
+
+  .brand{
+    gap:10px;
+  }
+}
