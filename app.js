@@ -1654,4 +1654,125 @@ async function downloadLineupImage(){
     }
   }
 }  
+/* ==================================================
+   LLXI – LIVE-ABSTIMMUNG AUF DER STARTSEITE
+   ================================================== */
+
+function llxiAddHomePolls(){
+
+  /* nur Spieleransicht */
+  if(MODE !== 'player') return;
+
+  const home = document.querySelector('#home');
+  if(!home) return;
+
+  /* verhindert doppelte Anzeige */
+  const old = document.querySelector('#llxiHomePolls');
+  if(old) old.remove();
+
+  const polls = state.polls || [];
+
+  /* keine Umfrage vorhanden */
+  if(!polls.length) return;
+
+  /* aktuellste Umfrage */
+  const poll = polls[polls.length - 1];
+
+  const vals = Object.values(poll.votes || {});
+
+  const box = document.createElement('div');
+
+  box.id = 'llxiHomePolls';
+  box.className = 'card';
+  box.style.marginTop = '14px';
+
+  box.innerHTML = `
+    <h2>Aktuelle Abstimmung</h2>
+
+    <h3 style="
+      margin-top:8px;
+      margin-bottom:15px;
+    ">
+      ${esc(poll.title)}
+    </h3>
+
+    ${POLL.map(option => {
+
+      const votes =
+        vals.filter(v => v.choice === option).length;
+
+      const percent =
+        vals.length
+          ? Math.round(votes / vals.length * 100)
+          : 0;
+
+      return `
+        <div class="poll">
+
+          <div>
+            <span>${esc(option)}</span>
+            <b>${percent}%</b>
+          </div>
+
+          <div class="bar">
+            <i style="width:${percent}%"></i>
+          </div>
+
+        </div>
+      `;
+
+    }).join('')}
+
+    <div style="
+      margin-top:12px;
+      text-align:center;
+    " class="muted">
+
+      ${vals.length}
+      ${vals.length === 1 ? 'Stimme' : 'Stimmen'}
+      bisher
+
+    </div>
+
+    <button
+      class="btn"
+      style="
+        width:100%;
+        margin-top:14px;
+      "
+      onclick="page('polls')"
+    >
+      Zur Abstimmung
+    </button>
+  `;
+
+  home.appendChild(box);
+}
+
+
+/* --------------------------------------------------
+   Bestehende Startseiten-Funktion erweitern
+   -------------------------------------------------- */
+
+const llxiHomeBeforePolls = renderHome;
+
+renderHome = function(){
+
+  /* bestehende Startseite inkl. Aufstellung */
+  llxiHomeBeforePolls();
+
+  /* aktuelle Abstimmung ergänzen */
+  llxiAddHomePolls();
+
+};
+
+
+/* Falls Startseite gerade sichtbar ist,
+   einmal direkt aktualisieren */
+if(
+  MODE === 'player' &&
+  document.querySelector('#home')
+){
+  llxiAddHomePolls();
+}  
 })();
