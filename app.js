@@ -259,14 +259,10 @@ function popup(){
 }
 
 function nav(){
-  const player=['home:Start','sessions:Einheiten','polls:Umfragen','lineup:Aufstellung','community:Community','profile:Profil'];
-  function nav(){
 
   const navEl = document.querySelector('#nav');
   const subEl = document.querySelector('#sub');
 
-  /* Falls HTML noch nicht vollständig geladen ist:
-     nicht abstürzen */
   if(!navEl){
     console.warn('LLXI: #nav ist noch nicht verfügbar.');
     return;
@@ -327,18 +323,13 @@ function nav(){
       </button>
     `;
 
-
-  /* Untertitel ebenfalls sicher setzen */
   if(subEl){
-
     subEl.textContent =
       MODE === 'admin'
         ? 'Admin / VM'
         : 'Spielerportal';
-
   }
 }
-
 function page(id){
   if(MODE==='player'&&!me.joined)return;
   document.body.dataset.page=id;
