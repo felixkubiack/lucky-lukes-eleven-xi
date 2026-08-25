@@ -1730,7 +1730,7 @@ function llxiAddHomePolls(){
   const old = document.querySelector('#llxiHomePolls');
   if(old) old.remove();
 
-  const polls = state.polls || [];
+  const polls = state?.polls || [];
 
   /* keine Umfrage vorhanden */
   if(!polls.length) return;
