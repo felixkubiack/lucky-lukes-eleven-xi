@@ -1158,3 +1158,231 @@ header{
   75%{
     filter:
       drop-shadow(0 6px 9px rgba(0,0,0,.
+/* ==================================================
+   LLXI – UMFRAGEN / ABSTIMMUNGEN FEINSCHLIFF
+   ================================================== */
+
+/* gesamte Umfragekarte */
+#polls .card{
+  padding:20px;
+  border-radius:28px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.92),
+      rgba(227,242,252,.86)
+    );
+
+  border:1px solid rgba(105,165,210,.20);
+
+  box-shadow:
+    0 14px 34px rgba(18,55,85,.12),
+    inset 0 1px 0 rgba(255,255,255,.75);
+}
+
+/* Umfragetitel deutlicher absetzen */
+#polls .card > h3{
+  margin:0 0 18px;
+
+  padding:14px 16px;
+
+  border-radius:20px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(18,48,78,.96),
+      rgba(32,82,120,.92)
+    );
+
+  color:#fff;
+
+  font-size:18px;
+  font-weight:900;
+  line-height:1.25;
+
+  box-shadow:
+    0 8px 20px rgba(15,45,70,.16);
+}
+
+/* jede Antwort als eigener Bereich */
+#polls .poll{
+  padding:13px 14px;
+  margin-bottom:10px;
+
+  border-radius:18px;
+
+  background:
+    rgba(255,255,255,.70);
+
+  border:
+    1px solid rgba(120,175,215,.20);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.85),
+    0 5px 14px rgba(25,65,95,.06);
+}
+
+/* Antwortname + Prozentzahl */
+#polls .poll > div:first-child{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  gap:12px;
+
+  margin-bottom:8px;
+
+  font-weight:800;
+}
+
+/* Prozentzahl als kleine Pill */
+#polls .poll > div:first-child b{
+  min-width:48px;
+
+  padding:5px 9px;
+
+  text-align:center;
+
+  border-radius:999px;
+
+  background:
+    rgba(30,82,120,.10);
+
+  color:#173a5b;
+
+  font-size:13px;
+}
+
+/* Balkenhintergrund */
+#polls .bar{
+  height:10px;
+
+  border-radius:999px;
+
+  overflow:hidden;
+
+  background:
+    rgba(35,80,115,.10);
+
+  box-shadow:
+    inset 0 2px 4px rgba(10,35,55,.10);
+}
+
+/* gefüllter Balken */
+#polls .bar i{
+  display:block;
+
+  height:100%;
+
+  border-radius:999px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #3e8dcc,
+      #7bc3ef
+    );
+
+  box-shadow:
+    0 0 12px rgba(75,155,215,.30);
+
+  transition:
+    width .35s ease;
+}
+
+/* Bereich mit Abstimmungsbuttons */
+#polls .actions{
+  margin-top:16px !important;
+
+  padding-top:15px;
+
+  border-top:
+    1px solid rgba(100,155,195,.18);
+
+  gap:9px;
+}
+
+/* einzelne Abstimmungsbuttons */
+#polls .actions .btn{
+  flex:1 1 calc(50% - 9px);
+
+  min-height:44px;
+
+  border-radius:16px;
+
+  font-weight:800;
+
+  background:
+    rgba(255,255,255,.78);
+
+  border:
+    1px solid rgba(85,145,190,.24);
+
+  box-shadow:
+    0 5px 13px rgba(20,55,80,.07);
+}
+
+/* private Stimmen als eigener Abschnitt */
+#polls h4{
+  margin:18px 0 10px !important;
+
+  padding-top:16px;
+
+  border-top:
+    1px solid rgba(95,150,190,.20);
+
+  font-size:14px;
+  font-weight:900;
+
+  color:#234d6d;
+
+  text-transform:uppercase;
+  letter-spacing:.6px;
+}
+
+/* einzelne private Stimme */
+#polls .row{
+  padding:11px 13px;
+
+  margin-bottom:7px;
+
+  border-radius:15px;
+
+  background:
+    rgba(255,255,255,.60);
+
+  border:
+    1px solid rgba(105,160,200,.15);
+}
+
+/* Löschbutton klar abtrennen */
+#polls .delete-poll-btn{
+  margin-top:4px;
+
+  border-radius:16px;
+}
+
+/* Handy */
+@media(max-width:600px){
+
+  #polls .card{
+    padding:16px;
+    border-radius:24px;
+  }
+
+  #polls .card > h3{
+    font-size:16px;
+    border-radius:17px;
+  }
+
+  #polls .poll{
+    padding:12px;
+    border-radius:16px;
+  }
+
+  #polls .actions .btn{
+    flex:1 1 100%;
+  }
+  }
