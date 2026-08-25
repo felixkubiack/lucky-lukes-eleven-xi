@@ -1159,4 +1159,126 @@ renderPolls=function(){
     card.appendChild(wrap);
   });
 };
+  /* ==================================================
+   LLXI – AUFSTELLUNG ALS BILD SPEICHERN
+   Zusatzblock
+   ================================================== */
+
+function addLineupDownloadButton(){
+
+  const lineup = document.querySelector('#lineup');
+  if(!lineup) return;
+
+  const pitch = lineup.querySelector('.pitch');
+  if(!pitch) return;
+
+  /* Button nicht doppelt erzeugen */
+  if(document.querySelector('#downloadLineupBtn')) return;
+
+  const btn = document.createElement('button');
+
+  btn.id = 'downloadLineupBtn';
+  btn.className = 'btn';
+  btn.type = 'button';
+  btn.innerHTML = '📸 Aufstellung als Bild speichern';
+
+  btn.style.marginTop = '14px';
+  btn.style.width = '100%';
+
+  btn.addEventListener('click', downloadLineupImage);
+
+  /* direkt unter dem Spielfeld */
+  pitch.insertAdjacentElement('afterend', btn);
+}
+
+
+async function downloadLineupImage(){
+
+  const pitch = document.querySelector('#lineup .pitch');
+  const btn = document.querySelector('#downloadLineupBtn');
+
+  if(!pitch){
+    alert('Keine Aufstellung gefunden.');
+    return;
+  }
+
+  if(typeof html2canvas !== 'function'){
+    alert('Bildfunktion konnte nicht geladen werden.');
+    return;
+  }
+
+  try{
+
+    if(btn){
+      btn.disabled = true;
+      btn.textContent = '📸 Bild wird erstellt...';
+    }
+
+    const canvas = await html2canvas(pitch,{
+      scale: 2,
+      useCORS: true,
+      backgroundColor: null,
+      logging: false
+    });
+
+    const link = document.createElement('a');
+
+    const now = new Date();
+
+    const date =
+      now.getFullYear() + '-' +
+      String(now.getMonth()+1).padStart(2,'0') + '-' +
+      String(now.getDate()).padStart(2,'0');
+
+    link.download = `LLXI-Aufstellung-${date}.png`;
+    link.href = canvas.toDataURL('image/png',1.0);
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+  }catch(err){
+
+    console.error('Aufstellungsbild Fehler:',err);
+
+    alert(
+      'Die Aufstellung konnte leider nicht als Bild erstellt werden.'
+    );
+
+  }finally{
+
+    if(btn){
+      btn.disabled = false;
+      btn.innerHTML = '📸 Aufstellung als Bild speichern';
+    }
+  }
+}
+
+
+/* Aufstellung wird dynamisch erzeugt.
+   Deshalb beobachten wir Änderungen. */
+
+const llxiLineupObserver = new MutationObserver(()=>{
+  addLineupDownloadButton();
+});
+
+llxiLineupObserver.observe(document.body,{
+  childList:true,
+  subtree:true
+});
+
+
+/* auch direkt beim Laden versuchen */
+if(document.readyState === 'loading'){
+
+  document.addEventListener(
+    'DOMContentLoaded',
+    addLineupDownloadButton
+  );
+
+}else{
+
+  addLineupDownloadButton();
+
+}
 })();
