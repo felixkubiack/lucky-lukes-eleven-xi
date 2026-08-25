@@ -457,8 +457,28 @@ textarea{
   z-index:1;
 }
 
-/* Weicher Schatten unter der oberen Schnellleiste */
+/* Oberer Balken läuft direkt weich aus */
 header{
+  position:sticky;
+  top:0;
+  z-index:30;
+
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(7,17,30,.98) 0%,
+      rgba(7,17,30,.96) 70%,
+      rgba(7,17,30,.72) 82%,
+      rgba(7,17,30,.35) 92%,
+      rgba(7,17,30,0) 100%
+    );
+
+  border-bottom:none;
+  box-shadow:none;
+
+  padding-bottom:22px;
+  margin-bottom:-22px;
+}
   position:sticky;
   top:0;
   z-index:30;
