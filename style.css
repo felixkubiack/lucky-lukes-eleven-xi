@@ -131,46 +131,40 @@ body{
     linear-gradient(
       115deg,
       transparent 0%,
-      rgba(215,183,93,.10) 25%,
+      rgba(255,255,255,.55) 25%,
       transparent 45%,
-      rgba(80,199,139,.10) 65%,
+      rgba(140,205,255,.28) 65%,
       transparent 85%
     ),
-    radial-gradient(circle at 15% 20%,rgba(215,183,93,.25),transparent 35%),
-    radial-gradient(circle at 85% 30%,rgba(80,199,139,.20),transparent 38%),
-    linear-gradient(135deg,#10233a,#1d3047,#25372f,#382d25);
+    radial-gradient(
+      circle at 15% 20%,
+      rgba(255,255,255,.95),
+      transparent 42%
+    ),
+    radial-gradient(
+      circle at 85% 30%,
+      rgba(125,195,255,.35),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 50% 90%,
+      rgba(215,183,93,.16),
+      transparent 42%
+    ),
+    linear-gradient(
+      135deg,
+      #f8fcff,
+      #dcefff,
+      #c7e4fa,
+      #eef8ff
+    );
 
   background-size:
     250% 100%,
     180% 180%,
     180% 180%,
+    180% 180%,
     200% 200%;
 
   animation:llxiClubMove 16s ease-in-out infinite;
-}
-
-@keyframes llxiClubMove{
-  0%{
-    background-position:
-      -100% 0,
-      0% 20%,
-      100% 20%,
-      0% 50%;
-  }
-
-  50%{
-    background-position:
-      100% 0,
-      100% 70%,
-      0% 70%,
-      100% 50%;
-  }
-
-  100%{
-    background-position:
-      -100% 0,
-      0% 20%,
-      100% 20%,
-      0% 50%;
-  }
 }
