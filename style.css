@@ -456,53 +456,23 @@ textarea{
 .pitch .slot{
   z-index:1;
 }
-
 /* Oberer Balken läuft direkt weich aus */
 header{
-  
-  top:0;
-  z-index:30;
-
-  background:
-    linear-gradient(
-      to bottom,
-      rgba(7,17,30,.98) 0%,
-      rgba(7,17,30,.96) 70%,
-      rgba(7,17,30,.72) 82%,
-      rgba(7,17,30,.35) 92%,
-      rgba(7,17,30,0) 100%
-    );
-
-  border-bottom:none;
-  box-shadow:none;
-
-  padding-bottom:22px;
-  margin-bottom:-22px;
-}
   position:sticky;
   top:0;
   z-index:30;
 
-  box-shadow:
-    0 12px 28px rgba(7,17,30,.22);
-}
+  background:linear-gradient(
+    to bottom,
+    rgba(7,17,30,.98) 0%,
+    rgba(7,17,30,.96) 65%,
+    rgba(7,17,30,.70) 78%,
+    rgba(7,17,30,.30) 90%,
+    rgba(7,17,30,0) 100%
+  );
 
-header::after{
-  content:"";
-  position:absolute;
-
-  left:0;
-  right:0;
-  bottom:-24px;
-
-  height:24px;
-
-  pointer-events:none;
-
-  background:
-    linear-gradient(
-      to bottom,
-      rgba(7,17,30,.20),
-      rgba(7,17,30,0)
-    );
+  border-bottom:none;
+  box-shadow:none;
+  padding-bottom:22px;
+  margin-bottom:-22px;
 }
