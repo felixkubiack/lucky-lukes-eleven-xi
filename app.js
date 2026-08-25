@@ -2435,4 +2435,75 @@ renderSessions = function(){
     );
 
 };  
+/* === NAV-SICHERHEIT GEGEN ALTEN CACHE === */
+
+const llxiOldNav = nav;
+
+nav = function(){
+
+  const navEl = document.querySelector('#nav');
+  const subEl = document.querySelector('#sub');
+
+  if(!navEl){
+    console.warn('Navigation noch nicht verfügbar.');
+    return;
+  }
+
+  const player=[
+    'home:Start',
+    'sessions:Einheiten',
+    'polls:Umfragen',
+    'lineup:Aufstellung',
+    'community:Community',
+    'profile:Profil'
+  ];
+
+  const admin=[
+    'home:Start',
+    'sessions:Einheiten',
+    'polls:Umfragen',
+    'lineup:Aufstellung',
+    'rights:Spieler & Rechte',
+    'applications:Bewerbungen',
+    'history:Verlauf',
+    'community:Community',
+    'profile:Profil'
+  ];
+
+  navEl.innerHTML=
+    (MODE==='admin' ? admin : player)
+      .map(x=>{
+        const [id,l]=x.split(':');
+
+        return `
+          <button
+            data-page="${id}"
+            onclick="page('${id}')"
+          >
+            ${l}
+          </button>
+        `;
+      })
+      .join('')
+
+    +
+
+    `
+      <button
+        id="bell"
+        class="bell"
+        onclick="noticePanel()"
+      >
+        🔔
+        <i class="dot"></i>
+      </button>
+    `;
+
+  if(subEl){
+    subEl.textContent =
+      MODE==='admin'
+        ? 'Admin / VM'
+        : 'Spielerportal';
+  }
+};  
 })();
