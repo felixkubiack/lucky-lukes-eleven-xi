@@ -1003,3 +1003,36 @@ header .head{
     gap:10px;
   }
 }
+/* === HEADER GERADE + SCHATTIERTE TRENNLINIE === */
+
+header{
+  border-radius:0 !important;
+  margin:0 !important;
+  width:100% !important;
+
+  border-bottom:none !important;
+
+  box-shadow:
+    0 8px 18px rgba(8,25,45,.14);
+}
+
+/* feine Trennung zur hellen Fläche */
+header::after{
+  content:"";
+  display:block;
+
+  width:100%;
+  height:2px;
+
+  background:linear-gradient(
+    to right,
+    rgba(120,170,210,0),
+    rgba(120,170,210,.55) 20%,
+    rgba(120,170,210,.75) 50%,
+    rgba(120,170,210,.55) 80%,
+    rgba(120,170,210,0)
+  );
+
+  box-shadow:
+    0 4px 10px rgba(20,50,80,.18);
+}
