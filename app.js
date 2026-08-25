@@ -1101,4 +1101,149 @@ window.addEventListener('storage',e=>{
 });
 
 })();
-       
+/* === ADMIN: UMFRAGEN MANUELL LÖSCHEN === */
+
+window.deletePoll = async function(id){
+  if(MODE !== 'admin') return;
+
+  if(!confirm('Umfrage wirklich löschen?')) return;
+
+  await mutate(s => {
+    const p = s.polls.find(x => x.id === id);
+    if(!p) return;
+
+    /* Verhindert, dass eine automatische Umfrage
+       nach dem Löschen sofort wieder erscheint */
+    if(p.sessionId){
+      s.history.push({
+        id: uid(),
+        type: 'pollExpired',
+        sessionId: p.sessionId,
+        name: p.title,
+        at: Date.now()
+      });
+    }
+
+    s.polls = s.polls.filter(x => x.id !== id);
+  });
+
+  toast('Umfrage gelöscht');
+  await tick();
+};
+
+
+renderPolls = function(){
+  const canPrivate =
+    MODE === 'admin' ||
+    member()?.rank === 'VM';
+
+  $('#polls').innerHTML =
+    state.polls.map(p => {
+
+      const vals =
+        Object.values(p.votes || {});
+
+      return `
+        <div class="card">
+
+          <h3>${esc(p.title)}</h3>
+
+          ${POLL.map(o => {
+
+            const n =
+              vals.filter(v => v.choice === o).length;
+
+            const pc =
+              vals.length
+                ? Math.round(n / vals.length * 100)
+                : 0;
+
+            return `
+              <div class="poll">
+
+                <div>
+                  ${o}
+                  <b>${pc}%</b>
+                </div>
+
+                <div class="bar">
+                  <i style="width:${pc}%"></i>
+                </div>
+
+              </div>
+            `;
+
+          }).join('')}
+
+
+          ${MODE === 'player'
+            ? `
+              <div
+                class="actions"
+                style="justify-content:flex-start"
+              >
+
+                ${POLL.map(o => `
+                  <button
+                    class="btn"
+                    onclick="vote('${p.id}','${o}')"
+                  >
+                    ${o}
+                  </button>
+                `).join('')}
+
+              </div>
+            `
+            : ''
+          }
+
+
+          ${MODE === 'admin'
+            ? `
+              <div
+                class="actions"
+                style="margin-top:16px"
+              >
+                <button
+                  class="btn red"
+                  onclick="deletePoll('${p.id}')"
+                >
+                  🗑 Umfrage löschen
+                </button>
+              </div>
+            `
+            : ''
+          }
+
+
+          ${canPrivate
+            ? `
+              <h4 style="margin-top:14px">
+                Private Einzelstimmen
+              </h4>
+
+              ${vals.map(v => `
+                <div class="row">
+                  <span>${esc(v.name)}</span>
+                  <b>${esc(v.choice)}</b>
+                </div>
+              `).join('')
+              ||
+              '<p class="muted">Noch keine Stimmen.</p>'
+              }
+            `
+            : ''
+          }
+
+        </div>
+      `;
+
+    }).join('')
+
+    ||
+
+    `<div class="card muted">
+      Nach einer abgelaufenen Einheit erscheint
+      hier automatisch eine Umfrage.
+    </div>`;
+};
