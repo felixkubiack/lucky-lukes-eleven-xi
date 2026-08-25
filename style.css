@@ -855,3 +855,83 @@ header{
     font-size:14px;
   }
 }
+/* === OBERER BEREICH WEICH + RUND === */
+
+/* Gesamter Kopfbereich */
+header{
+  margin:10px 10px 0;
+  width:calc(100% - 20px);
+
+  border-radius:0 0 28px 28px;
+  overflow:hidden;
+
+  border:1px solid rgba(150,205,245,.16);
+
+  box-shadow:
+    0 10px 28px rgba(8,25,45,.14);
+}
+
+/* Schnellleiste als weicher Bereich */
+.nav{
+  border-radius:22px;
+
+  padding:7px 8px 9px;
+
+  overflow-x:auto;
+  overflow-y:hidden;
+}
+
+/* Alle Schnellleisten-Buttons deutlich runder */
+.nav button{
+  border-radius:22px !important;
+
+  min-height:48px;
+
+  padding:12px 17px;
+
+  border:1px solid rgba(150,205,245,.20);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 4px 12px rgba(5,20,38,.08);
+}
+
+/* Aktiver Button ebenfalls weich */
+.nav button.active{
+  border-radius:22px !important;
+
+  box-shadow:
+    0 6px 16px rgba(190,145,35,.18),
+    inset 0 1px 0 rgba(255,255,255,.25);
+}
+
+/* Oberer Logo-/Titelbereich */
+.brand{
+  border-radius:22px;
+}
+
+/* Falls Logo einen eigenen Container besitzt */
+.logo{
+  border-radius:50%;
+  overflow:hidden;
+}
+
+/* Handy */
+@media(max-width:600px){
+
+  header{
+    margin:6px 6px 0;
+    width:calc(100% - 12px);
+
+    border-radius:0 0 24px 24px;
+  }
+
+  .nav{
+    border-radius:20px;
+  }
+
+  .nav button,
+  .nav button.active{
+    border-radius:20px !important;
+  }
+}
