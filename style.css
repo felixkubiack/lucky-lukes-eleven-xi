@@ -1057,3 +1057,23 @@ header::after{
     0 5px 12px rgba(20,55,85,.20),
     0 10px 22px rgba(45,95,130,.12) !important;
 }
+/* === WAPPEN OBEN LINKS: WEICHER SCHATTEN === */
+
+.brand-logo{
+  filter:
+    drop-shadow(0 5px 7px rgba(0,0,0,.38))
+    drop-shadow(0 0 8px rgba(120,185,230,.20)) !important;
+
+  transition:
+    filter .25s ease,
+    transform .25s ease;
+}
+
+/* dezenter Effekt beim Berühren / Darüberfahren */
+.brand-logo:hover{
+  filter:
+    drop-shadow(0 7px 10px rgba(0,0,0,.42))
+    drop-shadow(0 0 11px rgba(135,200,240,.28)) !important;
+
+  transform:translateY(-1px);
+}
