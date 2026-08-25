@@ -206,3 +206,213 @@ body{
   padding:7px;
   display:block;
 }
+/* === LLXI E-SPORTS GLASS DESIGN === */
+
+:root{
+  --panel:rgba(12,28,48,.82);
+  --line:rgba(120,185,235,.30);
+}
+
+/* Kräftigere E-Sports-Schrift */
+body,
+button,
+input,
+select,
+textarea{
+  font-family:
+    "Arial Black",
+    "Trebuchet MS",
+    system-ui,
+    sans-serif;
+}
+
+body{
+  font-weight:600;
+}
+
+/* Überschriften kräftiger */
+h1,
+h2,
+h3,
+h4,
+.brand{
+  font-weight:900;
+  letter-spacing:-.035em;
+}
+
+h1{
+  text-shadow:
+    0 2px 12px rgba(0,0,0,.28);
+}
+
+/* Glasiger Header */
+header{
+  background:rgba(10,26,43,.84);
+  backdrop-filter:blur(22px) saturate(145%);
+  -webkit-backdrop-filter:blur(22px) saturate(145%);
+  border-bottom:1px solid rgba(135,205,255,.24);
+  box-shadow:0 10px 35px rgba(7,20,35,.16);
+}
+
+/* Karten runder + verschwommener */
+.card{
+  border-radius:26px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.09),
+      rgba(255,255,255,.015) 35%
+    ),
+    rgba(12,28,48,.82);
+
+  backdrop-filter:blur(22px) saturate(135%);
+  -webkit-backdrop-filter:blur(22px) saturate(135%);
+
+  border:1px solid rgba(145,205,245,.30);
+
+  box-shadow:
+    0 18px 45px rgba(10,30,50,.18),
+    inset 0 1px 0 rgba(255,255,255,.10);
+}
+
+/* KPI / Statistik-Karten */
+.kpi{
+  border-radius:22px;
+  background:rgba(7,25,43,.72);
+
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+
+  border:1px solid rgba(130,195,240,.25);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.07),
+    0 10px 24px rgba(5,20,35,.12);
+}
+
+.kpi b{
+  font-weight:950;
+  letter-spacing:-.04em;
+}
+
+/* Navigation mehr E-Sports */
+.nav button,
+.btn{
+  border-radius:16px;
+  font-weight:900;
+  letter-spacing:-.015em;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(30,62,95,.92),
+      rgba(14,39,67,.92)
+    );
+
+  border:1px solid rgba(125,190,240,.32);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 7px 18px rgba(5,20,35,.14);
+}
+
+/* Aktiver Menüpunkt */
+.nav button.active,
+.btn.primary{
+  background:
+    linear-gradient(
+      135deg,
+      #f0d26e,
+      #d5ad42
+    );
+
+  box-shadow:
+    0 7px 22px rgba(215,183,93,.28),
+    inset 0 1px 0 rgba(255,255,255,.38);
+}
+
+/* Status-Chips */
+.status-chip,
+.pill{
+  border-radius:999px;
+
+  background:rgba(16,39,64,.76);
+
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+
+  border:1px solid rgba(135,200,245,.30);
+
+  font-weight:800;
+}
+
+/* Eingabefelder runder */
+input,
+select,
+textarea{
+  border-radius:16px;
+
+  background:rgba(7,28,48,.86);
+
+  border:1px solid rgba(125,190,235,.27);
+
+  font-weight:700;
+}
+
+/* Zeilen / Listen */
+.row{
+  border-radius:18px;
+
+  background:rgba(7,27,47,.76);
+
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+
+  border:1px solid rgba(125,190,235,.22);
+}
+
+/* Aufstellungsfeld */
+.pitch{
+  border-radius:28px;
+
+  box-shadow:
+    0 18px 40px rgba(7,30,40,.22),
+    inset 0 0 45px rgba(105,220,170,.10);
+}
+
+/* Spieler stärker nach E-Sports */
+.pitch .player{
+  font-weight:900;
+
+  background:
+    radial-gradient(
+      circle at 35% 20%,
+      rgba(255,255,255,.15),
+      transparent 35%
+    ),
+    rgba(7,28,48,.92);
+
+  box-shadow:
+    0 9px 20px rgba(0,0,0,.30),
+    0 0 16px rgba(105,168,239,.30),
+    inset 0 1px 0 rgba(255,255,255,.13);
+}
+
+/* Modal ebenfalls Glas */
+.sheet{
+  border-radius:28px 28px 0 0;
+
+  background:rgba(9,29,49,.92);
+
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+}
+
+/* Logo oben ohne hartes Quadrat */
+.brand-logo{
+  border:none;
+  background:transparent;
+  box-shadow:none;
+  padding:0;
+  border-radius:0;
+      }
