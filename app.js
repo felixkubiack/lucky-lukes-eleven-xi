@@ -1775,4 +1775,664 @@ if(
 ){
   llxiAddHomePolls();
 }  
+/* ==================================================
+   LLXI – EINHEITEN MIT START/ENDE
+   + FRÜHZEITIG BEENDEN
+   + UMFRAGE 24 STUNDEN
+   ================================================== */
+
+
+/* --------------------------------------------------
+   Zeitpunkt, an dem eine Einheit wirklich endet
+   -------------------------------------------------- */
+
+function llxiSessionEndTime(x){
+
+  /* manuell frühzeitig beendet */
+  if(x.endedAt){
+    return Number(x.endedAt);
+  }
+
+  /* neue Einheiten mit Endzeit */
+  if(x.endTime){
+    return new Date(
+      `${x.date}T${x.endTime}`
+    ).getTime();
+  }
+
+  /* alte Einheiten bleiben kompatibel */
+  if(x.time){
+    return new Date(
+      `${x.date}T${x.time}`
+    ).getTime();
+  }
+
+  return Infinity;
+}
+
+
+/* bestehende ended-Funktion überschreiben */
+ended = function(x){
+  return llxiSessionEndTime(x) <= Date.now();
+};
+
+
+/* --------------------------------------------------
+   AUTOMATISCHE UMFRAGEN
+   -------------------------------------------------- */
+
+autoPolls = function(s){
+
+  const now = Date.now();
+
+  /* Umfrage bleibt 24 Stunden offen */
+  const pollDuration =
+    24 * 60 * 60 * 1000;
+
+
+  /* ----------------------------------------------
+     1. Abgelaufene Umfragen merken
+     ---------------------------------------------- */
+
+  const expired =
+    s.polls.filter(
+      p =>
+        p.expiresAt &&
+        p.expiresAt <= now
+    );
+
+  expired.forEach(p=>{
+
+    if(
+      p.sessionId &&
+      !s.history.some(
+        h =>
+          h.type === 'pollExpired' &&
+          h.sessionId === p.sessionId
+      )
+    ){
+      s.history.push({
+        id:uid(),
+        type:'pollExpired',
+        sessionId:p.sessionId,
+        name:p.title || '',
+        at:now
+      });
+    }
+
+  });
+
+
+  /* dann entfernen */
+  s.polls =
+    s.polls.filter(
+      p =>
+        !p.expiresAt ||
+        p.expiresAt > now
+    );
+
+
+  /* ----------------------------------------------
+     2. Für beendete Einheiten Umfrage erstellen
+     ---------------------------------------------- */
+
+  for(const x of s.sessions){
+
+    if(!ended(x)){
+      continue;
+    }
+
+    const alreadyExists =
+      s.polls.some(
+        p => p.sessionId === x.id
+      );
+
+    const alreadyFinished =
+      s.history.some(
+        h =>
+          h.type === 'pollExpired' &&
+          h.sessionId === x.id
+      );
+
+    if(
+      alreadyExists ||
+      alreadyFinished
+    ){
+      continue;
+    }
+
+
+    const createdAt =
+      Math.max(
+        llxiSessionEndTime(x),
+        now
+      );
+
+
+    s.polls.push({
+
+      id:uid(),
+
+      sessionId:x.id,
+
+      title:
+        `Wie hat dir „${x.title}“ gefallen?`,
+
+      votes:{},
+
+      at:createdAt,
+
+      expiresAt:
+        createdAt + pollDuration
+
+    });
+
+  }
+
+};
+
+
+/* --------------------------------------------------
+   NEUE EINHEIT ERSTELLEN
+   -------------------------------------------------- */
+
+addSession = async function(){
+
+  const title =
+    $('#sTitle')?.value.trim();
+
+  const loc =
+    $('#sLoc')?.value.trim();
+
+  const date =
+    $('#sDate')?.value;
+
+  const startTime =
+    $('#sStart')?.value;
+
+  const endTime =
+    $('#sEnd')?.value;
+
+
+  if(
+    !title ||
+    !date ||
+    !startTime ||
+    !endTime
+  ){
+    return toast(
+      'Bitte Einheit vollständig ausfüllen',
+      true
+    );
+  }
+
+
+  const start =
+    new Date(
+      `${date}T${startTime}`
+    ).getTime();
+
+  const end =
+    new Date(
+      `${date}T${endTime}`
+    ).getTime();
+
+
+  if(end <= start){
+
+    return toast(
+      'Die Endzeit muss nach der Startzeit liegen.',
+      true
+    );
+
+  }
+
+
+  await mutate(s=>{
+
+    s.sessions.push({
+
+      id:uid(),
+
+      title,
+      loc,
+      date,
+
+      /* für alte Funktionen kompatibel */
+      time:startTime,
+
+      startTime,
+      endTime,
+
+      endedAt:null,
+
+      at:Date.now()
+
+    });
+
+  });
+
+
+  toast('Einheit erstellt');
+
+  await tick();
+
+};
+
+window.addSession = addSession;
+
+
+/* --------------------------------------------------
+   EINHEIT FRÜHZEITIG BEENDEN
+   -------------------------------------------------- */
+
+async function endSessionEarly(id){
+
+  if(MODE !== 'admin'){
+    return;
+  }
+
+
+  const session =
+    state.sessions.find(
+      x => x.id === id
+    );
+
+  if(!session){
+    return;
+  }
+
+
+  if(
+    !confirm(
+      `„${session.title}“ jetzt beenden?\n\nDie Umfrage wird sofort erstellt.`
+    )
+  ){
+    return;
+  }
+
+
+  await mutate(s=>{
+
+    const x =
+      s.sessions.find(
+        a => a.id === id
+      );
+
+    if(!x){
+      return;
+    }
+
+
+    x.endedAt =
+      Date.now();
+
+  });
+
+
+  toast(
+    'Einheit beendet – Umfrage wurde geöffnet.'
+  );
+
+  await tick();
+
+}
+
+window.endSessionEarly =
+  endSessionEarly;
+
+
+/* --------------------------------------------------
+   EINHEITEN NEU DARSTELLEN
+   -------------------------------------------------- */
+
+renderSessions = function(){
+
+  const mine = id =>
+    MODE === 'admin'
+      ? state.adminAttendance[id]?.status
+      : member()?.attendance?.[id]?.status;
+
+
+  $('#sessions').innerHTML =
+
+    /* ==============================================
+       ADMIN: EINHEIT ERSTELLEN
+       ============================================== */
+
+    (
+      MODE === 'admin'
+
+      ? `
+        <div class="card">
+
+          <h2>Einheit erstellen</h2>
+
+          <div class="grid">
+
+            <label>
+              Titel
+              <input id="sTitle">
+            </label>
+
+            <label>
+              Ort
+              <input id="sLoc">
+            </label>
+
+            <label>
+              Datum
+              <input
+                id="sDate"
+                type="date"
+              >
+            </label>
+
+            <label>
+              Von
+              <input
+                id="sStart"
+                type="time"
+              >
+            </label>
+
+            <label>
+              Bis
+              <input
+                id="sEnd"
+                type="time"
+              >
+            </label>
+
+          </div>
+
+          <button
+            class="btn primary"
+            style="
+              width:100%;
+              margin-top:12px
+            "
+            onclick="addSession()"
+          >
+            Einheit erstellen
+          </button>
+
+          <p
+            class="muted"
+            style="margin-top:10px"
+          >
+            Nach der Endzeit wird automatisch
+            eine Umfrage für 24 Stunden geöffnet.
+          </p>
+
+        </div>
+      `
+
+      : ''
+    )
+
+
+    /* ==============================================
+       BESTEHENDE EINHEITEN
+       ============================================== */
+
+    +
+
+    (
+      state.sessions.map(s=>{
+
+        const st =
+          mine(s.id);
+
+        const others =
+          state.members.filter(
+            m =>
+              MODE === 'admin' ||
+              m.id !== me.id
+          );
+
+
+        const start =
+          s.startTime ||
+          s.time ||
+          '–';
+
+        const end =
+          s.endTime ||
+          s.time ||
+          '–';
+
+
+        const isEnded =
+          ended(s);
+
+
+        const manuallyEnded =
+          !!s.endedAt;
+
+
+        return `
+
+          <div class="card">
+
+            <h3>
+              ${esc(s.title)}
+            </h3>
+
+
+            <p class="muted">
+
+              ${esc(s.loc || '')}
+
+              · ${esc(s.date)}
+
+              · ${esc(start)}
+              – ${esc(end)}
+
+            </p>
+
+
+            ${
+              manuallyEnded
+
+              ? `
+                <div
+                  class="pill"
+                  style="
+                    display:inline-block;
+                    margin-bottom:10px
+                  "
+                >
+                  Frühzeitig beendet
+                </div>
+              `
+
+              : ''
+            }
+
+
+            <div
+              class="actions"
+              style="
+                justify-content:flex-start
+              "
+            >
+
+              ${
+                !isEnded
+
+                ? `
+                  <button
+                    class="btn green"
+                    onclick="attend(
+                      '${s.id}',
+                      'yes'
+                    )"
+                  >
+                    ${
+                      st === 'yes'
+                        ? 'Nehme teil'
+                        : 'Teilnehmen'
+                    }
+                  </button>
+
+
+                  <button
+                    class="btn red"
+                    onclick="attend(
+                      '${s.id}',
+                      'no'
+                    )"
+                  >
+                    ${
+                      st === 'no'
+                        ? 'Nehme nicht teil'
+                        : 'Absagen'
+                    }
+                  </button>
+                `
+
+                : `
+                  <span class="pill">
+                    Einheit beendet
+                  </span>
+                `
+              }
+
+
+              ${
+                MODE === 'admin' &&
+                !isEnded
+
+                ? `
+                  <button
+                    class="btn"
+                    onclick="
+                      endSessionEarly(
+                        '${s.id}'
+                      )
+                    "
+                  >
+                    ⏹ Einheit jetzt beenden
+                  </button>
+                `
+
+                : ''
+              }
+
+
+              ${
+                MODE === 'admin'
+
+                ? `
+                  <button
+                    class="btn red"
+                    onclick="
+                      deleteSession(
+                        '${s.id}'
+                      )
+                    "
+                  >
+                    Löschen
+                  </button>
+                `
+
+                : ''
+              }
+
+            </div>
+
+
+            <h4
+              style="margin-top:14px"
+            >
+              Teilnehmende
+            </h4>
+
+
+            ${
+              MODE === 'player'
+
+              ? `
+                <div class="row">
+
+                  <span>
+                    Admin
+                  </span>
+
+                  <span class="pill">
+
+                    ${
+                      state
+                        .adminAttendance[s.id]
+                        ?.status === 'yes'
+
+                        ? 'Nimmt teil'
+
+                        : state
+                            .adminAttendance[s.id]
+                            ?.status === 'no'
+
+                        ? 'Nimmt nicht teil'
+
+                        : 'Offen'
+                    }
+
+                  </span>
+
+                </div>
+              `
+
+              : ''
+            }
+
+
+            ${
+              others.map(m=>`
+
+                <div class="row">
+
+                  <span>
+                    ${esc(m.name)}
+                  </span>
+
+                  <span class="pill">
+
+                    ${
+                      m.attendance?.[s.id]
+                        ?.status === 'yes'
+
+                        ? 'Nimmt teil'
+
+                        : m.attendance?.[s.id]
+                            ?.status === 'no'
+
+                        ? 'Nimmt nicht teil'
+
+                        : 'Offen'
+                    }
+
+                  </span>
+
+                </div>
+
+              `).join('')
+            }
+
+          </div>
+
+        `;
+
+      }).join('')
+
+      ||
+
+      `
+        <div class="card muted">
+          Keine Einheiten vorhanden.
+        </div>
+      `
+    );
+
+};  
 })();
