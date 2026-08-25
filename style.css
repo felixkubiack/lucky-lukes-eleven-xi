@@ -416,3 +416,73 @@ textarea{
   padding:0;
   border-radius:0;
       }
+/* Spielername sichtbar + Position dahinter verdecken */
+.pitch .player{
+  width:62px;
+  height:62px;
+  min-width:62px;
+  padding:6px;
+
+  background:#0b1b2f;
+  border:2px solid var(--accent);
+  border-radius:50%;
+
+  color:#fff;
+  font-size:10px;
+  font-weight:900;
+  line-height:1.05;
+
+  overflow:hidden;
+  white-space:normal;
+  word-break:break-word;
+
+  z-index:6;
+
+  box-shadow:
+    0 6px 16px rgba(0,0,0,.34),
+    0 0 14px color-mix(
+      in srgb,
+      var(--accent) 30%,
+      transparent
+    );
+}
+
+/* Positionsanzeige im Spielerkreis ausblenden */
+.pitch .player small{
+  display:none;
+}
+
+/* Positionskreis bleibt hinter dem Spieler */
+.pitch .slot{
+  z-index:1;
+}
+
+/* Weicher Schatten unter der oberen Schnellleiste */
+header{
+  position:sticky;
+  top:0;
+  z-index:30;
+
+  box-shadow:
+    0 12px 28px rgba(7,17,30,.22);
+}
+
+header::after{
+  content:"";
+  position:absolute;
+
+  left:0;
+  right:0;
+  bottom:-24px;
+
+  height:24px;
+
+  pointer-events:none;
+
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(7,17,30,.20),
+      rgba(7,17,30,0)
+    );
+}
